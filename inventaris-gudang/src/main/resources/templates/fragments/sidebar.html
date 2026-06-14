@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Sidebar Admin -->
+    <div th:fragment="sidebar(activeMenu, activeSubMenu)" class="sidebar">
+        <div class="sidebar-brand">
+            <span class="mark">Gudang.Sys</span>
+            <h2>Inventaris<br>Gudang</h2>
+            <div class="sidebar-role">Login sebagai: Admin</div>
+        </div>
+        <nav class="nav-group">
+            <a th:href="@{/admin/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+                <span class="nav-icon">#</span> Dashboard
+            </a>
+            <a th:href="@{/admin/data-barang}" class="nav-link" th:classappend="${activeMenu == 'data-barang'} ? 'active' : ''">
+                <span class="nav-icon">▣</span> Data Barang
+            </a>
+            <a th:href="@{/admin/transaksi/barang-masuk}" class="nav-link" th:classappend="${activeMenu == 'transaksi'} ? 'active' : ''">
+                <span class="nav-icon">▤</span> Transaksi
+            </a>
+            <a th:href="@{/admin/transaksi/barang-masuk}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'barang-masuk'} ? 'active' : ''">
+                Barang Masuk
+            </a>
+            <a th:href="@{/admin/transaksi/barang-keluar}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'barang-keluar'} ? 'active' : ''">
+                Barang Keluar
+            </a>
+            <a th:href="@{/admin/transaksi/riwayat}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'riwayat'} ? 'active' : ''">
+                Riwayat Transaksi
+            </a>
+            <a th:href="@{/admin/laporan}" class="nav-link" th:classappend="${activeMenu == 'laporan'} ? 'active' : ''">
+                <span class="nav-icon">▦</span> Laporan
+            </a>
+            <a th:href="@{/admin/kelola-user}" class="nav-link" th:classappend="${activeMenu == 'kelola-user'} ? 'active' : ''">
+                <span class="nav-icon">☰</span> Kelola User
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}" class="btn-logout">Logout</a>
+        </div>
+    </div>
+
+    <!-- Sidebar Petugas Gudang -->
+    <div th:fragment="sidebarPetugas(activeMenu, activeSubMenu)" class="sidebar">
+        <div class="sidebar-brand">
+            <span class="mark">Gudang.Sys</span>
+            <h2>Inventaris<br>Gudang</h2>
+            <div class="sidebar-role">Login sebagai: Petugas Gudang</div>
+        </div>
+        <nav class="nav-group">
+            <a th:href="@{/petugas/dashboard}" class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''">
+                <span class="nav-icon">#</span> Dashboard
+            </a>
+            <a th:href="@{/petugas/data-barang}" class="nav-link" th:classappend="${activeMenu == 'data-barang'} ? 'active' : ''">
+                <span class="nav-icon">▣</span> Data Barang
+            </a>
+            <a th:href="@{/petugas/transaksi/barang-masuk}" class="nav-link" th:classappend="${activeMenu == 'transaksi'} ? 'active' : ''">
+                <span class="nav-icon">▤</span> Transaksi
+            </a>
+            <a th:href="@{/petugas/transaksi/barang-masuk}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'barang-masuk'} ? 'active' : ''">
+                Barang Masuk
+            </a>
+            <a th:href="@{/petugas/transaksi/barang-keluar}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'barang-keluar'} ? 'active' : ''">
+                Barang Keluar
+            </a>
+            <a th:href="@{/petugas/transaksi/riwayat}" class="nav-link nav-sub" th:classappend="${activeSubMenu == 'riwayat'} ? 'active' : ''">
+                Riwayat Transaksi
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a th:href="@{/logout}" class="btn-logout">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

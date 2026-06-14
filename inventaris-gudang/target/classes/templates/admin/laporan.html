@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan — Inventaris Gudang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar(${activeMenu}, null)}"></div>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Khusus Admin</div>
+                <h1>Laporan</h1>
+                <div class="desc">Laporan barang masuk, barang keluar, dan stok barang berdasarkan periode.</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <a class="tab active" onclick="showTab('masuk')">Laporan Barang Masuk</a>
+            <a class="tab" onclick="showTab('keluar')">Laporan Barang Keluar</a>
+            <a class="tab" onclick="showTab('stok')">Laporan Stok Barang</a>
+        </div>
+
+        <div class="card" style="margin-top:0; border-top:none;">
+            <div class="card-head">
+                <div class="filter-bar">
+                    <label style="font-size:0.8rem; color:#847a6b; align-self:center;">Periode</label>
+                    <input type="date" value="2026-06-01">
+                    <span style="color:#a99c87; font-size:0.85rem;">s/d</span>
+                    <input type="date" value="2026-06-14">
+                    <button class="btn small ghost" onclick="alert('Menampilkan laporan sesuai periode (frontend only)')">Tampilkan</button>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn small ghost" onclick="alert('Mengekspor laporan ke PDF (frontend only)')">Export PDF</button>
+                    <button class="btn small solid" onclick="alert('Mencetak laporan (frontend only)')">Cetak</button>
+                </div>
+            </div>
+
+            <div class="card-body" id="tab-masuk">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Kode Barang</th>
+                        <th>Nama Barang</th>
+                        <th>Jumlah Masuk</th>
+                        <th>Keterangan</th>
+                        <th>Petugas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${transaksiList}" th:if="${t.tipe == 'Masuk'}">
+                        <td class="mono" th:text="${t.tanggal}"></td>
+                        <td class="mono" th:text="${t.kodeBarang}"></td>
+                        <td th:text="${t.namaBarang}"></td>
+                        <td th:text="${t.jumlah}"></td>
+                        <td th:text="${t.keterangan}"></td>
+                        <td th:text="${t.petugas}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-body" id="tab-keluar" style="display:none;">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Kode Barang</th>
+                        <th>Nama Barang</th>
+                        <th>Jumlah Keluar</th>
+                        <th>Keterangan</th>
+                        <th>Petugas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${transaksiList}" th:if="${t.tipe == 'Keluar'}">
+                        <td class="mono" th:text="${t.tanggal}"></td>
+                        <td class="mono" th:text="${t.kodeBarang}"></td>
+                        <td th:text="${t.namaBarang}"></td>
+                        <td th:text="${t.jumlah}"></td>
+                        <td th:text="${t.keterangan}"></td>
+                        <td th:text="${t.petugas}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-body" id="tab-stok" style="display:none;">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Stok Saat Ini</th>
+                        <th>Minimum Stok</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="b : ${barangList}">
+                        <td class="mono" th:text="${b.kode}"></td>
+                        <td th:text="${b.nama}"></td>
+                        <td th:text="${b.kategori}"></td>
+                        <td th:text="${b.stokSaatIni} + ' ' + ${b.satuan}"></td>
+                        <td th:text="${b.minimumStok} + ' ' + ${b.satuan}"></td>
+                        <td>
+                            <span class="badge normal" th:if="${b.statusStok == 'Normal'}">Normal</span>
+                            <span class="badge menipis" th:if="${b.statusStok == 'Menipis'}">Menipis</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function showTab(name) {
+        document.getElementById('tab-masuk').style.display = name === 'masuk' ? 'block' : 'none';
+        document.getElementById('tab-keluar').style.display = name === 'keluar' ? 'block' : 'none';
+        document.getElementById('tab-stok').style.display = name === 'stok' ? 'block' : 'none';
+
+        document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+</script>
+</body>
+</html>

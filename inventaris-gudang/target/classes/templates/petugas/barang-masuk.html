@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barang Masuk — Inventaris Gudang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebarPetugas(${activeMenu}, ${activeSubMenu})}"></div>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Transaksi</div>
+                <h1>Input Barang Masuk</h1>
+                <div class="desc">Catat barang yang diterima gudang. Stok akan bertambah otomatis setelah disimpan.</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <a th:href="@{/petugas/transaksi/barang-masuk}" class="tab active">Barang Masuk</a>
+            <a th:href="@{/petugas/transaksi/barang-keluar}" class="tab">Barang Keluar</a>
+            <a th:href="@{/petugas/transaksi/riwayat}" class="tab">Riwayat Transaksi</a>
+        </div>
+
+        <div class="card" style="margin-top:0; border-top:none;">
+            <div class="card-body" style="padding-top:24px;">
+                <form id="formMasuk">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="tanggalMasuk" value="2026-06-14">
+                        </div>
+                        <div class="form-group">
+                            <label>Pilih Barang</label>
+                            <select id="pilihBarangMasuk" onchange="updatePreviewMasuk()">
+                                <option value="">— Pilih Barang —</option>
+                                <option th:each="b : ${barangList}"
+                                        th:value="${b.kode}"
+                                        th:text="${b.kode} + ' — ' + ${b.nama}"
+                                        th:data-stok="${b.stokSaatIni}"
+                                        th:data-satuan="${b.satuan}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Masuk</label>
+                            <input type="number" id="jumlahMasuk" min="1" value="1" onchange="updatePreviewMasuk()">
+                        </div>
+                        <div class="form-group">
+                            <label>Asal / Supplier</label>
+                            <input type="text" placeholder="Nama supplier atau sumber barang">
+                        </div>
+                        <div class="form-group full">
+                            <label>Keterangan</label>
+                            <textarea rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="preview-box">
+                        <div class="ph-label">Pratinjau Perubahan Stok</div>
+                        <div class="preview-row">
+                            <span class="k">Stok sebelum</span>
+                            <span class="v" id="stokSebelumMasuk">—</span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="k">Jumlah masuk</span>
+                            <span class="v" id="jumlahPreviewMasuk">—</span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="k">Stok setelah disimpan</span>
+                            <span class="v" id="stokSetelahMasuk">—</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn solid" onclick="alert('Transaksi barang masuk tersimpan (frontend only). Stok bertambah otomatis.')">Simpan Transaksi</button>
+                        <button type="reset" class="btn ghost" onclick="resetPreviewMasuk()">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function updatePreviewMasuk() {
+        const select = document.getElementById('pilihBarangMasuk');
+        const jumlah = parseInt(document.getElementById('jumlahMasuk').value) || 0;
+        const opt = select.options[select.selectedIndex];
+        const stok = opt && opt.dataset.stok ? parseInt(opt.dataset.stok) : null;
+        const satuan = opt && opt.dataset.satuan ? opt.dataset.satuan : '';
+
+        document.getElementById('stokSebelumMasuk').textContent = stok !== null ? (stok + ' ' + satuan) : '—';
+        document.getElementById('jumlahPreviewMasuk').textContent = stok !== null ? ('+' + jumlah + ' ' + satuan) : '—';
+        document.getElementById('stokSetelahMasuk').textContent = stok !== null ? ((stok + jumlah) + ' ' + satuan) : '—';
+    }
+
+    function resetPreviewMasuk() {
+        document.getElementById('stokSebelumMasuk').textContent = '—';
+        document.getElementById('jumlahPreviewMasuk').textContent = '—';
+        document.getElementById('stokSetelahMasuk').textContent = '—';
+    }
+</script>
+</body>
+</html>

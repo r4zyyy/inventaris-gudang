@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Inventaris Gudang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar(${activeMenu}, null)}"></div>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Ringkasan Sistem</div>
+                <h1>Dashboard</h1>
+                <div class="desc">Gambaran umum kondisi gudang hari ini.</div>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="label">Total Barang</div>
+                <div class="value" th:text="${totalBarang}">0</div>
+            </div>
+            <div class="stat-card ok">
+                <div class="label">Barang Masuk Hari Ini</div>
+                <div class="value" th:text="${masukHariIni}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Barang Keluar Hari Ini</div>
+                <div class="value" th:text="${keluarHariIni}">0</div>
+            </div>
+            <div class="stat-card accent">
+                <div class="label">Stok Menipis</div>
+                <div class="value" th:text="${stokMenipis}">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <h3>Grafik Transaksi (7 Hari Terakhir)</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="chartTransaksi" height="90"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <h3>Daftar Barang Stok Menipis</h3>
+                <a th:href="@{/admin/data-barang}" class="btn small ghost">Lihat Semua Barang</a>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Nama Barang</th>
+                        <th>Stok Saat Ini</th>
+                        <th>Minimum Stok</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="b : ${barangMenipis}">
+                        <td class="mono" th:text="${b.kode}"></td>
+                        <td th:text="${b.nama}"></td>
+                        <td th:text="${b.stokSaatIni} + ' ' + ${b.satuan}"></td>
+                        <td th:text="${b.minimumStok} + ' ' + ${b.satuan}"></td>
+                        <td><span class="badge menipis">Menipis</span></td>
+                    </tr>
+                    <tr th:if="${barangMenipis.isEmpty()}">
+                        <td colspan="5" style="text-align:center; color:#a99c87;">Tidak ada barang dengan stok menipis.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <h3>Riwayat Transaksi Terbaru</h3>
+                <a th:href="@{/admin/transaksi/riwayat}" class="btn small ghost">Lihat Semua</a>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Tipe</th>
+                        <th>Barang</th>
+                        <th>Jumlah</th>
+                        <th>Petugas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="t : ${riwayatTerbaru}">
+                        <td class="mono" th:text="${t.tanggal}"></td>
+                        <td>
+                            <span class="badge masuk" th:if="${t.tipe == 'Masuk'}">Masuk</span>
+                            <span class="badge keluar" th:if="${t.tipe == 'Keluar'}">Keluar</span>
+                        </td>
+                        <td th:text="${t.namaBarang}"></td>
+                        <td th:text="${t.jumlah}"></td>
+                        <td th:text="${t.petugas}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+    const ctx = document.getElementById('chartTransaksi');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['08 Jun', '09 Jun', '10 Jun', '11 Jun', '12 Jun', '13 Jun', '14 Jun'],
+            datasets: [
+                {
+                    label: 'Barang Masuk',
+                    data: [3, 5, 4, 2, 6, 3, 4],
+                    backgroundColor: '#5c6b4a'
+                },
+                {
+                    label: 'Barang Keluar',
+                    data: [2, 3, 5, 6, 3, 4, 2],
+                    backgroundColor: '#c1531b'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+</script>
+</body>
+</html>

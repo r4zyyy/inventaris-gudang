@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barang Keluar — Inventaris Gudang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar(${activeMenu}, ${activeSubMenu})}"></div>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Transaksi</div>
+                <h1>Input Barang Keluar</h1>
+                <div class="desc">Catat barang yang keluar dari gudang. Stok akan berkurang otomatis setelah disimpan.</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <a th:href="@{/admin/transaksi/barang-masuk}" class="tab">Barang Masuk</a>
+            <a th:href="@{/admin/transaksi/barang-keluar}" class="tab active">Barang Keluar</a>
+            <a th:href="@{/admin/transaksi/riwayat}" class="tab">Riwayat Transaksi</a>
+        </div>
+
+        <div class="card" style="margin-top:0; border-top:none;">
+            <div class="card-body" style="padding-top:24px;">
+                <form id="formKeluar">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="tanggalKeluar" value="2026-06-14">
+                        </div>
+                        <div class="form-group">
+                            <label>Pilih Barang</label>
+                            <select id="pilihBarangKeluar" onchange="updatePreviewKeluar()">
+                                <option value="">— Pilih Barang —</option>
+                                <option th:each="b : ${barangList}"
+                                        th:value="${b.kode}"
+                                        th:text="${b.kode} + ' — ' + ${b.nama}"
+                                        th:data-stok="${b.stokSaatIni}"
+                                        th:data-satuan="${b.satuan}"
+                                        th:data-min="${b.minimumStok}"></option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Keluar</label>
+                            <input type="number" id="jumlahKeluar" min="1" value="1" onchange="updatePreviewKeluar()">
+                        </div>
+                        <div class="form-group">
+                            <label>Tujuan / Penerima</label>
+                            <input type="text" placeholder="Divisi, proyek, atau penerima barang">
+                        </div>
+                        <div class="form-group full">
+                            <label>Keterangan</label>
+                            <textarea rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="preview-box">
+                        <div class="ph-label">Pratinjau Perubahan Stok</div>
+                        <div class="preview-row">
+                            <span class="k">Stok sebelum</span>
+                            <span class="v" id="stokSebelumKeluar">—</span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="k">Jumlah keluar</span>
+                            <span class="v" id="jumlahPreviewKeluar">—</span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="k">Stok setelah disimpan</span>
+                            <span class="v" id="stokSetelahKeluar">—</span>
+                        </div>
+                        <div class="preview-row" id="rowStatusKeluar" style="display:none;">
+                            <span class="k">Status stok setelah transaksi</span>
+                            <span class="v" id="statusSetelahKeluar">—</span>
+                        </div>
+                    </div>
+
+                    <div id="warnInsufficient" class="login-error" style="display:none;">
+                        Jumlah keluar melebihi stok yang tersedia.
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn solid" onclick="alert('Transaksi barang keluar tersimpan (frontend only). Stok berkurang otomatis.')">Simpan Transaksi</button>
+                        <button type="reset" class="btn ghost" onclick="resetPreviewKeluar()">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function updatePreviewKeluar() {
+        const select = document.getElementById('pilihBarangKeluar');
+        const jumlah = parseInt(document.getElementById('jumlahKeluar').value) || 0;
+        const opt = select.options[select.selectedIndex];
+        const stok = opt && opt.dataset.stok ? parseInt(opt.dataset.stok) : null;
+        const satuan = opt && opt.dataset.satuan ? opt.dataset.satuan : '';
+        const minStok = opt && opt.dataset.min ? parseInt(opt.dataset.min) : null;
+
+        const warn = document.getElementById('warnInsufficient');
+        const rowStatus = document.getElementById('rowStatusKeluar');
+
+        if (stok === null) {
+            document.getElementById('stokSebelumKeluar').textContent = '—';
+            document.getElementById('jumlahPreviewKeluar').textContent = '—';
+            document.getElementById('stokSetelahKeluar').textContent = '—';
+            warn.style.display = 'none';
+            rowStatus.style.display = 'none';
+            return;
+        }
+
+        const sisa = stok - jumlah;
+        document.getElementById('stokSebelumKeluar').textContent = stok + ' ' + satuan;
+        document.getElementById('jumlahPreviewKeluar').textContent = '-' + jumlah + ' ' + satuan;
+        document.getElementById('stokSetelahKeluar').textContent = sisa + ' ' + satuan;
+
+        warn.style.display = sisa < 0 ? 'block' : 'none';
+
+        rowStatus.style.display = 'flex';
+        const statusEl = document.getElementById('statusSetelahKeluar');
+        if (sisa <= minStok) {
+            statusEl.innerHTML = '<span class="badge menipis">Menipis</span>';
+        } else {
+            statusEl.innerHTML = '<span class="badge normal">Normal</span>';
+        }
+    }
+
+    function resetPreviewKeluar() {
+        document.getElementById('stokSebelumKeluar').textContent = '—';
+        document.getElementById('jumlahPreviewKeluar').textContent = '—';
+        document.getElementById('stokSetelahKeluar').textContent = '—';
+        document.getElementById('warnInsufficient').style.display = 'none';
+        document.getElementById('rowStatusKeluar').style.display = 'none';
+    }
+</script>
+</body>
+</html>

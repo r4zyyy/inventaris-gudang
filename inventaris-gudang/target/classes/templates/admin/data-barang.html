@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Barang — Inventaris Gudang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-shell">
+    <div th:replace="~{fragments/sidebar :: sidebar(${activeMenu}, null)}"></div>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <div class="eyebrow">Master Data</div>
+                <h1>Data Barang</h1>
+                <div class="desc">Kelola daftar barang, stok saat ini, dan minimum stok.</div>
+            </div>
+            <button class="btn solid" onclick="document.getElementById('formTambah').showModal()">+ Tambah Barang</button>
+        </div>
+
+        <div class="card">
+            <div class="card-head">
+                <h3>Daftar Barang (<span th:text="${barangList.size()}">0</span>)</h3>
+                <div class="filter-bar">
+                    <input type="text" placeholder="Cari nama barang...">
+                    <select>
+                        <option>Semua Kategori</option>
+                        <option>Elektrikal</option>
+                        <option>Plumbing</option>
+                        <option>Material</option>
+                        <option>K3</option>
+                        <option>Hardware</option>
+                    </select>
+                    <select>
+                        <option>Semua Status</option>
+                        <option>Normal</option>
+                        <option>Menipis</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Nama Barang</th>
+                        <th>Kategori</th>
+                        <th>Stok Saat Ini</th>
+                        <th>Minimum Stok</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="b : ${barangList}">
+                        <td class="mono" th:text="${b.kode}"></td>
+                        <td th:text="${b.nama}"></td>
+                        <td th:text="${b.kategori}"></td>
+                        <td th:text="${b.stokSaatIni} + ' ' + ${b.satuan}"></td>
+                        <td th:text="${b.minimumStok} + ' ' + ${b.satuan}"></td>
+                        <td>
+                            <span class="badge normal" th:if="${b.statusStok == 'Normal'}">Normal</span>
+                            <span class="badge menipis" th:if="${b.statusStok == 'Menipis'}">Menipis</span>
+                        </td>
+                        <td class="actions-cell">
+                            <button class="btn small ghost" th:onclick="|document.getElementById('editModal-${b.kode}').showModal()|">Edit</button>
+                            <button class="btn small ghost" onclick="alert('Konfirmasi hapus barang (frontend only).')">Hapus</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal Tambah Barang -->
+        <dialog id="formTambah" style="border:1px solid var(--line); padding:0; width:560px; max-width:90vw;">
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="card-head">
+                    <h3>Tambah Barang Baru</h3>
+                </div>
+                <div class="card-body" style="padding-top:18px;">
+                    <form>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Kode Barang</label>
+                                <input type="text" placeholder="Contoh: BRG009">
+                            </div>
+                            <div class="form-group">
+                                <label>Nama Barang</label>
+                                <input type="text" placeholder="Nama barang">
+                            </div>
+                            <div class="form-group">
+                                <label>Kategori</label>
+                                <select>
+                                    <option>Elektrikal</option>
+                                    <option>Plumbing</option>
+                                    <option>Material</option>
+                                    <option>K3</option>
+                                    <option>Hardware</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Satuan</label>
+                                <input type="text" placeholder="Pcs / Box / Sak">
+                            </div>
+                            <div class="form-group">
+                                <label>Stok Awal</label>
+                                <input type="number" min="0" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Minimum Stok</label>
+                                <input type="number" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn solid" onclick="document.getElementById('formTambah').close()">Simpan Barang</button>
+                            <button type="button" class="btn ghost" onclick="document.getElementById('formTambah').close()">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </dialog>
+
+        <!-- Modal Edit Barang (per item) -->
+        <dialog th:each="b : ${barangList}" th:id="${'editModal-' + b.kode}" style="border:1px solid var(--line); padding:0; width:560px; max-width:90vw;">
+            <div class="card" style="margin:0; box-shadow:none;">
+                <div class="card-head">
+                    <h3>Edit Barang — <span th:text="${b.kode}"></span></h3>
+                </div>
+                <div class="card-body" style="padding-top:18px;">
+                    <form>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nama Barang</label>
+                                <input type="text" th:value="${b.nama}">
+                            </div>
+                            <div class="form-group">
+                                <label>Kategori</label>
+                                <input type="text" th:value="${b.kategori}">
+                            </div>
+                            <div class="form-group">
+                                <label>Satuan</label>
+                                <input type="text" th:value="${b.satuan}">
+                            </div>
+                            <div class="form-group">
+                                <label>Stok Saat Ini</label>
+                                <input type="number" th:value="${b.stokSaatIni}">
+                            </div>
+                            <div class="form-group full">
+                                <label>Minimum Stok</label>
+                                <input type="number" th:value="${b.minimumStok}">
+                                <div class="form-hint">Sistem akan menandai status "Menipis" jika stok saat ini ≤ minimum stok.</div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn solid" th:onclick="|document.getElementById('editModal-${b.kode}').close()|">Simpan Perubahan</button>
+                            <button type="button" class="btn ghost" th:onclick="|document.getElementById('editModal-${b.kode}').close()|">Batal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </dialog>
+    </main>
+</div>
+</body>
+</html>
